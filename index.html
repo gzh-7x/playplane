@@ -1,0 +1,505 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Title</title>
+    <style>
+        #start{
+            width:2114px;
+            height:1058px;
+            position: absolute;
+            background-image: url("start1.jpg");
+            background-repeat: no-repeat;
+            background-size: 100% 100%;
+        }
+        #score{
+            font-size: 35px;
+            font-family: 微软雅黑;
+            color: orange;
+            position: absolute;
+            left: 20px;
+            z-index: -1;
+        }
+        #life{
+            font-size: 35px;
+            font-family: 微软雅黑;
+            color: orange;
+            position: absolute;
+            right: 30px;
+            z-index: -1;
+        }
+        #gift{
+            font-size: 35px;
+            font-family: 微软雅黑;
+            color: orange;
+            position: absolute;
+            left: 5%;
+            top: 95%;
+            z-index: -1;
+         }
+        #cvs{
+            position: absolute;
+            border:1px solid black;
+            z-index: -2;
+            background-image: url("bc2.jpg");
+            background-repeat: no-repeat;
+            background-size: 100% 100%;
+        }
+        #play{
+            position: absolute;
+            width: 200px;
+            height: 100px;
+            cursor: pointer;
+            left: 1000px;
+            top: 450px;
+        }
+        #about{
+            position: absolute;
+            width: 200px;
+            height: 100px;
+            cursor: pointer;
+            left: 1000px;
+            top: 700px;
+        }
+        #log{
+            position: absolute;
+            left: 30%;
+            top: 10%;
+            width: 40%;
+            height: 15%;
+        }
+        #logp{
+            position: absolute;
+            width: 200px;
+            height: 150px;
+            left: 5%;
+            top: 10%;
+        }
+        #logp2{
+             position: absolute;
+             left: 80%;
+             top: 10%;
+             width: 200px;
+             height: 150px;
+         }
+        #end{
+            width:2114px;
+            height:1058px;
+            position: absolute;
+            z-index: -3;
+            background-image: url("over.jpg");
+            background-repeat: no-repeat;
+            background-size: 100% 100%;
+        }
+        #gameover{
+            position: absolute;
+            left: 30%;
+            top: 30%;
+            width: 40%;
+            height: 15%;
+        }
+        #return{
+            position: absolute;
+            left: 40%;
+            top: 45%;
+            width: 500px;
+            height: 200px;
+            cursor: pointer;
+        }
+        dialog {
+            width: 100%;
+            height: 100%;
+            position: fixed;
+            left: 0;
+            top: 0;
+            opacity: 0.5;
+            background-color: black;
+        }
+        dialog div {
+            width: 40%;
+            height: 20%;
+            border: 1px;
+            background-color: #a4ffff;
+            position: fixed;
+            left: 30%;
+            top: 40%;
+        }
+        dialog div div {
+            position: absolute;
+            left: 0;
+            top: 0;
+            width: 100%;
+            height: 100%;
+            color: black;
+            font-size: 30px;
+            font-family: 幼圆;
+        }
+        dialog div button {
+            position: absolute;
+            left: 90%;
+            top: 80%;
+        }
+    </style>
+</head>
+<body >
+    <div id="start">
+        <img src="log.png" alt="" id="log">
+        <img src="logp.png" alt="" id="logp">
+      <!--  <img src="people.png" alt="" id="logp1">-->
+        <img src="logp2.png" alt="" id="logp2">
+        <img src="play.png" alt="" id="play" onclick="play()">
+        <img src="about.png" alt="" id="about" onclick="about()">
+    </div><!--界面-->
+    <img src="plane2.png" alt="" id="plane" style="display: none">
+    <img src="emeny.png" alt="" id="emeny" style="display: none">
+    <img src="fire.png" alt="" id="fire" style="display: none">
+    <img src="gift.gif" alt="" id="sun" style="display: none">
+    <img src="big.png" alt="" id="big" style="display: none">
+    <img src="boom.png" alt="" id="boom" style="display: none">
+       <div id="main"> <canvas id="cvs" width="2114" height="1058"></canvas>
+    <div id="score">
+        分数: <span>0</span>
+    </div>
+    <div id="life">
+        生命：
+        <span>
+        <img src="life.png" alt="" class="lifePicture">
+        <img src="life.png" alt="" class="lifePicture">
+        <img src="life.png" alt="" class="lifePicture">
+    </span>
+    </div>
+    <div id="gift">
+        道具：
+        <span>
+            <img src="bom.png" alt="">
+        </span>
+    </div>
+       </div>
+    <dialog><div><div>玩家使用上下左右键进行移动，空格键发射子弹，一共三条生命，碰到敌机生命值减一，生命值为零时游戏结束。游戏中每隔一段时间会有道具生成，初始有一个道具，道具上限3个，回车键使用道具。每消灭一共敌人分数+100碰到敌机分数-200。</div><button onclick="myClose()">我知道了</button></div></dialog>
+    <div id="end">
+        <img src="gameover.png" alt="" id="gameover">
+        <img src="return.png" alt="" id="return" onclick="_return()">
+    </div>
+    <script>
+        var img = document.getElementById('plane');//飞机
+        var img1 = document.getElementById('emeny');//敌人
+        var img2 = document.getElementById('fire');//子弹
+        var big = document.getElementById('big');//大招
+        var sun = document.getElementById('sun');//道具
+        //var boom = document.getElementById('boom');//爆炸
+        var cvs = document.getElementById('cvs');
+        var ctx = cvs.getContext('2d');
+        var main = document.getElementById('main');
+        var span = document.getElementsByTagName('span')[0];
+        var span1 = document.getElementsByTagName('span')[1];
+        var span2 = document.getElementsByTagName('span')[2];
+        var img3 = span1.getElementsByTagName("img");//生命图片
+        var img4 = span2.getElementsByTagName('img');//道具图片
+        var gGame = null;
+        var dialogs =document.getElementsByTagName('dialog')[0];
+        var start = document.getElementById('start');
+        var end = document.getElementById('end');
+        function onLoad() {
+            gGame = new Game();
+            gGame.render();
+            gGame.update();
+        }
+        function Game() {
+            var _this = this;
+            this.frame = 0;
+            this.lastFrame = 0;
+            this.CDCode = 10;//攻速速度
+            this.CDCode1 = 40;//敌人刷新速度
+            this.CDCode2 =1200;//道具刷新速度
+            this.CDCode3 = 60;//道具释放速度
+            this.lastFrame1 = 0;
+            this.lastFrame2 = 0;
+            this.lastFrame3 = 0;
+            this.plane = null;
+            this.bulltes = [];
+            this.emenys = [];
+            this.gifts = [];
+            this.bigs = [];
+            this.score = 0;
+            document.onkeydown = function (e) {
+                if (e.keyCode == 32){
+                    if(_this.frame >= _this.lastFrame + _this.CDCode){
+                        _this.bulltes.push(new Bullet(_this.plane.positionX+img.width/2-img2.width/2,_this.plane.positionY));
+                        _this.lastFrame = _this.frame;
+                    }
+                    }else if (e.keyCode == 37) {
+                    _this.plane.direction = 0;
+                    }else if (e.keyCode == 38) {
+                        _this.plane.direction = 1;
+                    }else if (e.keyCode == 39) {
+                        _this.plane.direction = 2;
+                    }else if (e.keyCode == 40) {
+                        _this.plane.direction = 3;
+                    }else if (e.keyCode == 13) {
+                    if(_this.frame >= _this.lastFrame3 + _this.CDCode3&&img4.length>=1){
+                        _this.bigs.push(new BigBang());
+                        span2.removeChild(img4[0]);
+                        _this.lastFrame3 = _this.frame;
+                        console.log(_this.bigs);
+                    }
+                }
+            };
+            document.onkeyup = function(){
+                _this.plane.direction = null
+            };
+            this.render = function () {
+                _this.plane = new Plane();
+            };
+            this.update = function () {
+                _this.frame++;
+                ctx.clearRect(0,0,cvs.width,cvs.height);
+                _this.plane.updatePos();
+                _this.plane.draw();
+                if (_this.frame >= _this.lastFrame1 + _this.CDCode1) {
+                    _this.emenys.push(new Emeny());
+                    _this.lastFrame1 = _this.frame;
+                }
+                if (_this.frame >= _this.lastFrame2 + _this.CDCode2) {
+                    _this.gifts.push(new Gift());
+                    _this.lastFrame2 = _this.frame;
+                }
+                _this.emenys.forEach(function (val) {
+                    _this.bigs.forEach(function (item) {
+                        if (!((item.positionX + cvs.width) < val.positionX || (val.positionX + img1.width) < item.positionX || (item.positionY + cvs.height) < val.positionY || (val.positionY + img1.height) < item.positionY) ){
+                            val.dead = true;
+                            _this.score+=100;
+                            span.innerHTML =  _this.score;
+                        }
+                    })
+                });//使用大招
+                _this.gifts.forEach(function (val) {
+                    if (!((val.positionX + sun.width) < _this.plane.positionX || (_this.plane.positionX + img.width) < val.positionX || (val.positionY + sun.height) < _this.plane.positionY || (_this.plane.positionY + img.height) < val.positionY) ){
+                        val.dead = true;
+                        if (img4.length < 3){
+                        var a = new Image();
+                        a.src="bom.png";
+                        span2.appendChild(a);
+                        }
+                    }
+                });//吃道具
+                _this.emenys.forEach(function (val) {
+                    _this.bulltes.forEach(function (item) {
+                        var x1 = val.positionX;
+                        var x2 = item.positionX;
+                        var y1 = val.positionY;
+                        var y2 = item.positionY;
+                        var h1 = img1.height;
+                        var h2 = img2.height;
+                        var w1 = img1.width;
+                        var w2 = img2.width;
+                        if (!((x1 + w1) < x2 || (x2 + w2) < x1 || (y1 + h1) < y2 || (y2 + h2) < y1) ){
+                            val.dead = true;
+                            item.dead = true;
+                            _this.score+=100;
+                         /*   var bom = new Boom(x1,y1);
+                            bom.draw();*/
+                            span.innerHTML =  _this.score;
+                        }
+                    })
+                });//子弹碰撞敌人
+                _this.emenys.forEach(function (val) {
+                    if (!((val.positionX + img1.width) < _this.plane.positionX || (_this.plane.positionX + img.width) < val.positionX || (val.positionY + img1.height) < _this.plane.positionY || (_this.plane.positionY + img.height) < val.positionY)&&img3.length>=1 ){
+                        val.dead = true;
+                        _this.score-=200;
+                        span1.removeChild(img3[0]);
+                        if (_this.score<=0){
+                            _this.score = 0
+                        }
+                        if ( img3.length==0 &&!((val.positionX + img1.width) < _this.plane.positionX || (_this.plane.positionX + img.width) < val.positionX || (val.positionY + img1.height) < _this.plane.positionY || (_this.plane.positionY + img.height) < val.positionY)){
+                            setTimeout(function () {
+                               main.style.display='none';
+                               end.style.display = 'block';
+                            },100)
+                        }
+                        span.innerHTML =  _this.score;
+                    }
+                });//敌人碰撞飞机
+                _this.emenys.forEach(function (val,index) {
+                    val.draw();
+                    val.updatePos();
+                    val.updateStatus();
+                    if (val.dead){
+                        _this.emenys.splice(index,1)
+                    }
+                });//画敌人
+                _this.bulltes.forEach(function (val,index) {
+                    val.draw();
+                    val.updatePos();
+                    val.updateStatus();
+                    if (val.dead){
+                        _this.bulltes.splice(index,1);
+                    }
+                });//画子弹
+                _this.gifts.forEach(function (val,index) {
+                    val.draw();
+                    val.updatePos();
+                    val.updateStatus();
+                    if (val.dead){
+                        _this.gifts.splice(index,1);
+                    }
+                });//画道具
+                _this.bigs.forEach(function (val,index) {
+                    val.draw();
+                    val.updatePos();
+                    val.updateStatus();
+                    if (val.dead){
+                        _this.bigs.splice(index,1);
+                    }
+                });//画大招
+                window.requestAnimationFrame(_this.update);
+            };
+        }
+        function Plane() {
+            var _this = this;
+            this.direction = null;/*0左走37 1上走38 2右走39 3下走40*/
+            this.temp =0;
+            this.positionX = cvs.width/2;
+            this.positionY = cvs.height-img.height;
+            this.draw = function () {
+                ctx.beginPath();
+                ctx.drawImage(img,0,0,img.width,img.height,_this.positionX,_this.positionY,img.width,img.height);
+            };
+            this.updatePos = function () {
+                switch (_this.direction) {
+                    case 0:{
+                        if (_this.positionX >= 0){
+                            _this.positionX-=4;
+                        }
+                    }break;
+                    case 1:{
+                        if (_this.positionY >= 0){
+                            _this.positionY-=4
+                        }
+                    }break;
+                    case 2:{
+                        if (_this.positionX <= cvs.width - img.width){
+                            _this.positionX+=4
+                        }
+                    }break;
+                    case 3:{
+                        if (_this.positionY <= cvs.height - img.height){
+                            _this.positionY+=4
+                        }
+                    }break;
+                }
+            };
+        }
+        function Bullet(x,y) {
+            var _this = this;
+            this.positionX = x;
+            this.positionY = y;
+            this.v = 5;
+            this.dead = false;
+            this.draw = function () {
+                ctx.beginPath();
+                ctx.drawImage(img2,0,0,img2.width,img2.height,_this.positionX,_this.positionY,img2.width,img2.height)
+            };
+            this.updatePos = function () {
+                var dt = 1;
+                _this.positionY -= _this.v * dt;
+            };
+            this.updateStatus = function () {
+                if (_this.positionY < 0){
+                    _this.dead = true;
+                }
+            }
+        }
+        function Emeny() {
+            var _this = this;
+            this.dead = false;
+            this.positionX = Math.random() * (cvs.width-img1.width);
+            this.positionY = 0;
+            this.v = 3.5;
+            this.draw = function () {
+                ctx.beginPath();
+                ctx.drawImage(img1,0,0,img1.width,img1.height,_this.positionX,_this.positionY,img1.width,img1.height);
+            };
+            this.updatePos = function () {
+                var dt = 1;
+                _this.positionY += _this.v * dt
+            };
+            this.updateStatus = function () {
+                if (_this.positionY >= cvs.height - img1.height){
+                    _this.dead =true;
+                }
+            }
+        }
+        function BigBang()  {
+            var _this =this;
+            this.positionX = 0;
+            this.positionY = cvs.height;
+            this.v = 10;
+            this.draw = function () {
+                ctx.beginPath();
+                ctx.drawImage(big,0,0,big.width,big.height,_this.positionX,_this.positionY,cvs.width,cvs.height)
+            };
+            this.updatePos = function () {
+                var dt = 1;
+                _this.positionY -= _this.v * dt;
+            };
+            this.updateStatus = function () {
+                if (_this.positionY < -cvs.height){
+                    _this.dead = true;
+                }
+            }
+        }
+        function Gift() {
+            var _this = this;
+            this.dead = false;
+            this.positionX = Math.random() * (cvs.width-sun.width);
+            this.positionY = 0;
+            this.angle =90;
+            this.v = 2;
+            this.draw = function () {
+                ctx.beginPath();
+                ctx.drawImage(sun,0,0,sun.width,sun.height,_this.positionX,_this.positionY,sun.width,sun.height);
+            };
+            this.updatePos = function () {
+                var dt = 1;
+                _this.positionX += _this.v * dt * Math.cos(_this.angle*Math.PI/180);
+                _this.positionY += _this.v * dt * Math.sin(_this.angle*Math.PI/180);};
+            this.updateStatus = function () {
+                if (_this.positionY >= cvs.height - img1.height){
+                    _this.dead =true;
+                }
+            }
+        }
+       /* function Boom(x,y) {
+            var _this = this;
+            this.positionX = x;
+            this.positionY = y;
+            this.v = 1;
+            this.dead = false;
+            this.draw = function () {
+                ctx.beginPath();
+                ctx.drawImage(boom, 0, 0, boom.width, boom.height, _this.positionX, _this.positionY, img1.width, img1.height);
+            };
+            this.updatePos = function () {
+                var dt = 1;
+                _this.positionY += _this.v * dt
+            };
+            this.updateStatus = function () {
+
+            }
+        }*/
+        function play() {
+            start.style.display = 'none';
+            onLoad()
+        }
+        function about() {
+            dialogs.open = true;
+        }
+        function _return() {
+            location.reload();
+        }
+        function myClose() {
+            dialogs.open = false;
+        }
+    </script>
+</body>
+</html>
